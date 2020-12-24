@@ -50,7 +50,7 @@ import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Auto configuration for Ribbon (client side load balancing).
+ * 功能区的自动配置（客户端负载平衡）。 Auto configuration for Ribbon (client side load balancing).
  *
  * @author Spencer Gibb
  * @author Dave Syer
@@ -59,10 +59,14 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @Conditional(RibbonAutoConfiguration.RibbonClassesConditions.class)
 @RibbonClients
+// 在 RibbonAutoConfiguration 配置后，配置 EurekaClientAutoConfiguration
 @AutoConfigureAfter(
 		name = "org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration")
+// 在 RibbonAutoConfiguration 配置前，配置 LoadBalancerAutoConfiguration
+// AsyncLoadBalancerAutoConfiguration
 @AutoConfigureBefore({ LoadBalancerAutoConfiguration.class,
 		AsyncLoadBalancerAutoConfiguration.class })
+// 使 @ConfigurationProperties 注解生效
 @EnableConfigurationProperties({ RibbonEagerLoadProperties.class,
 		ServerIntrospectorProperties.class })
 public class RibbonAutoConfiguration {
