@@ -22,6 +22,8 @@ import java.util.Objects;
 import org.springframework.cloud.context.named.NamedContextFactory;
 
 /**
+ * ribbon client 规范
+ *
  * @author Dave Syer
  */
 public class RibbonClientSpecification implements NamedContextFactory.Specification {

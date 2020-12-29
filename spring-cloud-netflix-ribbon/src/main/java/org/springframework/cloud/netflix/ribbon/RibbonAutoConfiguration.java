@@ -70,10 +70,11 @@ import org.springframework.web.client.RestTemplate;
 @EnableConfigurationProperties({ RibbonEagerLoadProperties.class,
 		ServerIntrospectorProperties.class })
 public class RibbonAutoConfiguration {
-
+	
+	// Ribbon client 规范
 	@Autowired(required = false)
 	private List<RibbonClientSpecification> configurations = new ArrayList<>();
-
+	// ribbon是否懒加载的配置文件
 	@Autowired
 	private RibbonEagerLoadProperties ribbonEagerLoadProperties;
 

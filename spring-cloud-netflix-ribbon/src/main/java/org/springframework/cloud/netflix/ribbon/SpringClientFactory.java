@@ -28,6 +28,8 @@ import org.springframework.cloud.context.named.NamedContextFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
+ * 创建客户端，负载平衡器和客户端配置实例的工厂。它为每个客户端名称创建一个Spring ApplicationContext，并从那里提取所需的bean。
+ *
  * A factory that creates client, load balancer and client configuration instances. It
  * creates a Spring ApplicationContext per client name, and extracts the beans that it
  * needs from there.
@@ -89,10 +91,18 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 		return instantiateWithConfig(null, clazz, config);
 	}
 
-	static <C> C instantiateWithConfig(AnnotationConfigApplicationContext context,
-			Class<C> clazz, IClientConfig config) {
+	/**
+	 * 初始化一个 Client，根据 config
+	 *
+	 * @param context
+	 * @param clazz
+	 * @param config
+	 * @param <C>
+	 * @return
+	 */
+	static <C> C instantiateWithConfig(AnnotationConfigApplicationContext context, Class<C> clazz, IClientConfig config) {
+		// <1> 根据构造器，实例化 client 对象
 		C result = null;
-
 		try {
 			Constructor<C> constructor = clazz.getConstructor(IClientConfig.class);
 			result = constructor.newInstance(config);
@@ -101,27 +111,30 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 			// Ignored
 		}
 
+		// <2> 根据 class 实例化对象
 		if (result == null) {
+			// 调用 spring 的实例化方式
 			result = BeanUtils.instantiateClass(clazz);
-
 			if (result instanceof IClientConfigAware) {
 				((IClientConfigAware) result).initWithNiwsConfig(config);
 			}
-
 			if (context != null) {
+				// <3> 如果 context 不为空，就将实例化的这个对象，放入容器中
+				// autowireBean：会自动创建一个 RootBeanDefinition 对象
 				context.getAutowireCapableBeanFactory().autowireBean(result);
 			}
 		}
-
 		return result;
 	}
 
 	@Override
 	public <C> C getInstance(String name, Class<C> type) {
+		// <1> 从 application context 中获取，存在就直接返回了
 		C instance = super.getInstance(name, type);
 		if (instance != null) {
 			return instance;
 		}
+		// <2> 配置文件实例化对象
 		IClientConfig config = getInstance(name, IClientConfig.class);
 		return instantiateWithConfig(getContext(name), type, config);
 	}
